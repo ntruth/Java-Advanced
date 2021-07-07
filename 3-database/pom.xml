@@ -10,7 +10,7 @@
     </parent>
 
     <name>3-database</name>
-    <groupId>com</groupId>
+    <groupId>com.study</groupId>
     <artifactId>3-database</artifactId>
     <version>1.0.0</version>
 

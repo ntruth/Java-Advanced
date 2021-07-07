@@ -9,7 +9,7 @@
     </parent>
 
     <name>1-concurrent</name>
-    <groupId>com</groupId>
+    <groupId>com.study</groupId>
     <artifactId>1-concurrent</artifactId>
     <version>1.0.0</version>
 

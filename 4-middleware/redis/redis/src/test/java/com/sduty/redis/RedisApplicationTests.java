@@ -1,10 +1,10 @@
-package com.study.middleware;
+package com.sduty.redis;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MiddlewareApplicationTests {
+class RedisApplicationTests {
 
     @Test
     void contextLoads() {

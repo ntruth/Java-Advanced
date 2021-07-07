@@ -9,7 +9,7 @@
     </parent>
 
     <name>2-spring</name>
-    <groupId>com</groupId>
+    <groupId>com.study</groupId>
     <artifactId>2-spring</artifactId>
     <version>1.0.0</version>
 

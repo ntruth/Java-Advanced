@@ -2,21 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.study</groupId>
         <artifactId>java-adcanced</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <name>6.leetcode</name>
-
+    <name>4-redis</name>
     <groupId>com.study</groupId>
-    <artifactId>6.leetcode</artifactId>
+    <artifactId>4-redis</artifactId>
     <version>1.0.0</version>
 
     <packaging>jar</packaging>
 
-    <description>Demo project for Spring Boot</description>
+
     <properties>
         <java.version>1.8</java.version>
     </properties>

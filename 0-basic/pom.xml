@@ -11,7 +11,7 @@
 
     <packaging>jar</packaging>
 
-    <groupId>com</groupId>
+    <groupId>com.study</groupId>
     <artifactId>0-basic</artifactId>
     <version>1.0.0</version>
 

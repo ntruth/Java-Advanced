@@ -1,13 +1,13 @@
-package com.study.middleware;
+package com.sduty.redis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MiddlewareApplication {
+public class RedisApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MiddlewareApplication.class, args);
+        SpringApplication.run(RedisApplication.class, args);
     }
 
 }
