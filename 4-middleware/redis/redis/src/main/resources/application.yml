@@ -1,7 +1,7 @@
 spring:
   ##=====================redis ========
   redis:
-    block-when-exhausted: true
+    block-when-exhausted: false
     # Redis数据库索引（默认为0）
     database: 0
     # Redis服务器地址

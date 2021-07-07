@@ -1,6 +1,7 @@
 package com.sduty.redis.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +43,12 @@ public class JedisConfig {
         jedisPoolConfig.setBlockWhenExhausted(blockWhenExhausted);
         // 是否启用pool的jmx管理功能, 默认true
         jedisPoolConfig.setJmxEnabled(true);
+
+        // 判断密码是否为空 若为空 则不填密码
+        if(StringUtils.isBlank(password)) {
+            return new JedisPool(jedisPoolConfig, host, port, timeout);
+        }
+
         return new JedisPool(jedisPoolConfig, host, port, timeout, password);
     }
 }
