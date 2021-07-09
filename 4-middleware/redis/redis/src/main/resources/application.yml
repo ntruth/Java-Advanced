@@ -25,6 +25,6 @@ spring:
         # 连接池中的最大空闲连接
         max-idle: 10
         #最大等待毫秒数
-        max-wait: -1
+        max-wait: 18000
 
 

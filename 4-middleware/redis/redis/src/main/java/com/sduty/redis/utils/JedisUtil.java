@@ -21,74 +21,10 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class JedisUtil{
+public class JedisUtil {
 
     @Autowired
     private JedisPool jedisPool;
-
-    private static final Long RELEASE_SUCCESS = 1L;
-
-    private static final String LOCK_SUCCESS = "OK";
-    private static final String SET_IF_NOT_EXIST = "NX";
-    private static final String SET_WITH_EXPIRE_TIME = "PX";
-
-
-    // 这种方案存在问题:
-    // 由于这里设置的过期时间是固定的，因此可能存在一种情况当客户端业务没有执行完但是key过期释放了，
-    // 因此这里设置的过期时间不能过短，要和业务常规执行耗时结合。
-    // 但是较好的方案是开启一个新线程不断地去检查当前key是否存在，存在则对该key进行续时操作。
-    // 后面讲基于redisson实现的分布式锁时会讲到在redisson中使用了watchdog来不断为key续时解决了这一问题。
-
-    /**
-     * 尝试获取分布式锁
-     * @param jedis Redis客户端
-     * @param lockKey 锁
-     * @param requestId 请求标识
-     * @param expireTime 超期时间（毫秒）
-     * @return 是否获取成功
-     */
-    public  boolean tryGetDistributedLock(String lockKey, String requestId, int expireTime) {
-        boolean status = false;
-        Jedis jedis = null;
-        try {
-            jedis = jedisPool.getResource();
-            // 设置nx(不存在才创建)，px(该key过期时间)
-            SetParams setParams = new SetParams().nx().px(expireTime);
-
-            String result = jedis.set(lockKey, requestId, setParams);
-
-            // 是否获取成功
-            return LOCK_SUCCESS.equals(result);
-
-        } finally {
-            returnResource(jedisPool, jedis);
-        }
-
-    }
-
-    /**
-     * 释放分布式锁
-     * @param jedis Redis客户端
-     * @param lockKey 锁
-     * @param requestId 请求标识
-     * @return 是否释放成功
-     */
-    public  boolean releaseDistributedLock(String lockKey, String requestId) {
-
-        boolean status;
-        Jedis jedis = null;
-        try {
-            jedis = jedisPool.getResource();
-
-            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-            Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
-            // 此处包含了key被删除了或者value被修改了的两种情况
-            return RELEASE_SUCCESS.equals(result);
-        } finally {
-            returnResource(jedisPool, jedis);
-        }
-
-    }
 
     /**
      * 往名为channelName的频道中发送消息
@@ -96,7 +32,7 @@ public class JedisUtil{
      * @param channelName channel名称
      * @param message     消息
      */
-    public  void publish( String channelName, String message) {
+    public void publish(String channelName, String message) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -116,7 +52,7 @@ public class JedisUtil{
      * @param jedisPubSub jedisPubSub实例
      * @param channelName channel名称
      */
-    public  void subscribe(JedisPubSub jedisPubSub, String channelName) {
+    public void subscribe(JedisPubSub jedisPubSub, String channelName) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -142,7 +78,7 @@ public class JedisUtil{
      * @param indexdb 选择redis库 0-15
      * @return 成功返回value 失败返回null
      */
-    public String get(String key,int indexdb) {
+    public String get(String key, int indexdb) {
         Jedis jedis = null;
         String value = null;
         try {
@@ -170,7 +106,7 @@ public class JedisUtil{
      * @param indexdb 选择redis库 0-15
      * @return 成功返回value 失败返回null
      */
-    public byte[] get(byte[] key,int indexdb) {
+    public byte[] get(byte[] key, int indexdb) {
         Jedis jedis = null;
         byte[] value = null;
         try {
@@ -185,6 +121,7 @@ public class JedisUtil{
         }
         return value;
     }
+
     /**
      * <p>
      * 向redis存入key和value,并释放连接资源
@@ -198,7 +135,7 @@ public class JedisUtil{
      * @param indexdb 选择redis库 0-15
      * @return 成功 返回OK 失败返回 0
      */
-    public String set(String key, String value,int indexdb) {
+    public String set(String key, String value, int indexdb) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -212,6 +149,7 @@ public class JedisUtil{
             returnResource(jedisPool, jedis);
         }
     }
+
     /**
      * <p>
      * 向redis存入key和value,并释放连接资源
@@ -225,7 +163,7 @@ public class JedisUtil{
      * @param indexdb 选择redis库 0-15
      * @return 成功 返回OK 失败返回 0
      */
-    public String set(byte[] key, byte[] value,int indexdb) {
+    public String set(byte[] key, byte[] value, int indexdb) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -239,6 +177,7 @@ public class JedisUtil{
             returnResource(jedisPool, jedis);
         }
     }
+
     /**
      * <p>
      * 删除指定的key,也可以传入一个包含key的数组
@@ -260,15 +199,17 @@ public class JedisUtil{
             returnResource(jedisPool, jedis);
         }
     }
+
     /**
      * <p>
      * 删除指定的key,也可以传入一个包含key的数组
      * </p>
+     *
      * @param indexdb 选择redis库 0-15
-     * @param keys 一个key 也可以使 string 数组
+     * @param keys    一个key 也可以使 string 数组
      * @return 返回删除成功的个数
      */
-    public Long del(int indexdb,String... keys) {
+    public Long del(int indexdb, String... keys) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -282,15 +223,17 @@ public class JedisUtil{
             returnResource(jedisPool, jedis);
         }
     }
+
     /**
      * <p>
      * 删除指定的key,也可以传入一个包含key的数组
      * </p>
+     *
      * @param indexdb 选择redis库 0-15
-     * @param keys 一个key 也可以使 string 数组
+     * @param keys    一个key 也可以使 string 数组
      * @return 返回删除成功的个数
      */
-    public Long del(int indexdb,byte[]... keys) {
+    public Long del(int indexdb, byte[]... keys) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -304,6 +247,7 @@ public class JedisUtil{
             returnResource(jedisPool, jedis);
         }
     }
+
     /**
      * <p>
      * 通过key向指定的value值追加值
@@ -377,8 +321,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param value
-     *            过期时间，单位：秒
+     * @param value 过期时间，单位：秒
      * @return 成功返回1 如果存在 和 发生异常 返回 0
      */
     public Long expire(String key, int value, int indexdb) {
@@ -402,9 +345,9 @@ public class JedisUtil{
      *
      * @param key
      * @return 当 key 不存在时，返回 -2 。当 key 存在但没有设置剩余生存时间时，返回 -1 。否则，以秒为单位，返回 key
-     *         的剩余生存时间。 发生异常 返回 0
+     * 的剩余生存时间。 发生异常 返回 0
      */
-    public Long ttl(String key,int indexdb) {
+    public Long ttl(String key, int indexdb) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -447,8 +390,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param seconds
-     *            生存时间 单位：秒
+     * @param seconds 生存时间 单位：秒
      * @param value
      * @return 设置成功时返回 OK 。当 seconds 参数不合法时，返回一个错误。
      */
@@ -522,8 +464,7 @@ public class JedisUtil{
      *
      * @param key
      * @param value
-     * @param seconds
-     *            单位:秒
+     * @param seconds 单位:秒
      * @return 成功返回OK 失败和异常返回null
      */
     public String setex(String key, String value, int seconds) {
@@ -569,8 +510,7 @@ public class JedisUtil{
      *
      * @param key
      * @param str
-     * @param offset
-     *            下标位置
+     * @param offset 下标位置
      * @return 返回替换后 value 的长度
      */
     public Long setrange(String key, String str, int offset) {
@@ -592,8 +532,7 @@ public class JedisUtil{
      * 通过批量的key获取批量的value
      * </p>
      *
-     * @param keys
-     *            string数组 也可以是一个key
+     * @param keys string数组 也可以是一个key
      * @return 成功返回value的集合, 失败返回null的集合 ,异常返回空
      */
     public List<String> mget(String... keys) {
@@ -624,7 +563,6 @@ public class JedisUtil{
      *
      * @param keysvalues
      * @return 成功返回OK 失败 异常 返回 null
-     *
      */
     public String mset(String... keysvalues) {
         Jedis jedis = null;
@@ -700,8 +638,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param startOffset
-     *            开始位置 从0 开始 负数表示从右边开始截取
+     * @param startOffset 开始位置 从0 开始 负数表示从右边开始截取
      * @param endOffset
      * @return 如果没有返回null
      */
@@ -843,8 +780,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param field
-     *            字段
+     * @param field 字段
      * @param value
      * @return 如果存在返回0 异常返回null
      */
@@ -943,8 +879,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param fields
-     *            可以使 一个String 也可以是 String数组
+     * @param fields 可以使 一个String 也可以是 String数组
      * @return
      */
     public List<String> hmget(String key, int indexdb, String... fields) {
@@ -1042,8 +977,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param fields
-     *            可以是 一个 field 也可以是 一个数组
+     * @param fields 可以是 一个 field 也可以是 一个数组
      * @return
      */
     public Long hdel(String key, String... fields) {
@@ -1136,8 +1070,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param strs
-     *            可以使一个string 也可以使string数组
+     * @param strs 可以使一个string 也可以使string数组
      * @return 返回list的value个数
      */
     public Long lpush(int indexdb, String key, String... strs) {
@@ -1162,8 +1095,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param strs
-     *            可以使一个string 也可以使string数组
+     * @param strs 可以使一个string 也可以使string数组
      * @return 返回list的value个数
      */
     public Long rpush(String key, String... strs) {
@@ -1220,8 +1152,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param index
-     *            从0开始
+     * @param index 从0开始
      * @param value
      * @return 成功返回OK
      */
@@ -1246,8 +1177,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param count
-     *            当count为0时删除全部
+     * @param count 当count为0时删除全部
      * @param value
      * @return 返回被删除的个数
      */
@@ -1517,8 +1447,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param members
-     *            可以是一个String 也可以是一个String数组
+     * @param members 可以是一个String 也可以是一个String数组
      * @return 添加成功的个数
      */
     public Long sadd(String key, String... members) {
@@ -1542,8 +1471,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param members
-     *            可以是一个String 也可以是一个String数组
+     * @param members 可以是一个String 也可以是一个String数组
      * @return 删除的个数
      */
     public Long srem(String key, String... members) {
@@ -1592,8 +1520,7 @@ public class JedisUtil{
      * 以第一个set为标准
      * </p>
      *
-     * @param keys
-     *            可以使一个string 则返回set中所有的value 也可以是string数组
+     * @param keys 可以使一个string 则返回set中所有的value 也可以是string数组
      * @return
      */
     public Set<String> sdiff(String... keys) {
@@ -1619,10 +1546,8 @@ public class JedisUtil{
      * 以第一个set为标准
      * </p>
      *
-     * @param dstkey
-     *            差集存入的key
-     * @param keys
-     *            可以使一个string 则返回set中所有的value 也可以是string数组
+     * @param dstkey 差集存入的key
+     * @param keys   可以使一个string 则返回set中所有的value 也可以是string数组
      * @return
      */
     public Long sdiffstore(String dstkey, String... keys) {
@@ -1645,8 +1570,7 @@ public class JedisUtil{
      * 通过key获取指定set中的交集
      * </p>
      *
-     * @param keys
-     *            可以使一个string 也可以是一个string数组
+     * @param keys 可以使一个string 也可以是一个string数组
      * @return
      */
     public Set<String> sinter(String... keys) {
@@ -1670,8 +1594,7 @@ public class JedisUtil{
      * </p>
      *
      * @param dstkey
-     * @param keys
-     *            可以使一个string 也可以是一个string数组
+     * @param keys   可以使一个string 也可以是一个string数组
      * @return
      */
     public Long sinterstore(String dstkey, String... keys) {
@@ -1694,8 +1617,7 @@ public class JedisUtil{
      * 通过key返回所有set的并集
      * </p>
      *
-     * @param keys
-     *            可以使一个string 也可以是一个string数组
+     * @param keys 可以使一个string 也可以是一个string数组
      * @return
      */
     public Set<String> sunion(String... keys) {
@@ -1719,8 +1641,7 @@ public class JedisUtil{
      * </p>
      *
      * @param dstkey
-     * @param keys
-     *            可以使一个string 也可以是一个string数组
+     * @param keys   可以使一个string 也可以是一个string数组
      * @return
      */
     public Long sunionstore(String dstkey, String... keys) {
@@ -1743,12 +1664,9 @@ public class JedisUtil{
      * 通过key将set中的value移除并添加到第二个set中
      * </p>
      *
-     * @param srckey
-     *            需要移除的
-     * @param dstkey
-     *            添加的
-     * @param member
-     *            set中的value
+     * @param srckey 需要移除的
+     * @param dstkey 添加的
+     * @param member set中的value
      * @return
      */
     public Long smove(String srckey, String dstkey, String member) {
@@ -1971,8 +1889,7 @@ public class JedisUtil{
      * </p>
      *
      * @param key
-     * @param members
-     *            可以使一个string 也可以是一个string数组
+     * @param members 可以使一个string 也可以是一个string数组
      * @return
      */
     public Long zrem(String key, String... members) {
@@ -2301,7 +2218,7 @@ public class JedisUtil{
         return res;
     }
 
-    public Set<String> keysBySelect(String pattern,int database) {
+    public Set<String> keysBySelect(String pattern, int database) {
         Jedis jedis = null;
         Set<String> res = null;
         try {
@@ -2343,9 +2260,9 @@ public class JedisUtil{
 
     /**
      * 序列化对象
+     *
      * @param obj
-     * @return
-     * 对象需实现Serializable接口
+     * @return 对象需实现Serializable接口
      */
     public static byte[] ObjTOSerialize(Object obj) {
         ObjectOutputStream oos = null;
@@ -2363,9 +2280,9 @@ public class JedisUtil{
 
     /**
      * 反序列化对象
+     *
      * @param bytes
-     * @return
-     * 对象需实现Serializable接口
+     * @return 对象需实现Serializable接口
      */
     public static Object unserialize(byte[] bytes) {
         ByteArrayInputStream bais = null;
@@ -2385,7 +2302,7 @@ public class JedisUtil{
      * @param jedisPool
      * @param jedis
      */
-    public  void returnResource(JedisPool jedisPool, Jedis jedis) {
+    public void returnResource(JedisPool jedisPool, Jedis jedis) {
         if (jedis != null) {
             jedis.close();
         }

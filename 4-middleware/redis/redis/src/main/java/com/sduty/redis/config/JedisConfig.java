@@ -37,6 +37,8 @@ public class JedisConfig {
         log.info("JedisPool注入成功！！");
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxIdle(maxIdle);
+        // 最大连接数
+        jedisPoolConfig.setMaxTotal(100);
         jedisPoolConfig.setMaxWaitMillis(maxWaitMillis);
         // 连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
         jedisPoolConfig.setBlockWhenExhausted(blockWhenExhausted);
@@ -46,8 +48,9 @@ public class JedisConfig {
         // 判断密码是否为空 若为空 则不填密码
         if(StringUtils.isBlank(password)) {
             return new JedisPool(jedisPoolConfig, host, port, timeout);
+        } else {
+            return new JedisPool(jedisPoolConfig, host, port, timeout, password);
         }
 
-        return new JedisPool(jedisPoolConfig, host, port, timeout, password);
     }
 }
