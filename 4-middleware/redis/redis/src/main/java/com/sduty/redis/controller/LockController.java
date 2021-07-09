@@ -14,6 +14,7 @@ import redis.clients.jedis.JedisPubSub;
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -72,5 +73,26 @@ public class LockController {
             System.out.println("释放了锁操作:" + releaseState);
         }
     }
+
+//    @Autowired
+//    private RedissonUtil redissonUtil;
+//
+//    @GetMapping("redisson/lock")
+//    public String redissonLock() throws InterruptedException {
+//
+//        RLock lock = redisson.getLock("stock");
+//
+//        boolean b = lock.tryLock(10, TimeUnit.SECONDS);
+//
+//        if (b) {
+//            String stock = String.valueOf(redissonUtil.getRBucket("stock"));
+//            System.out.println("抢到分布式锁:" + stock);
+//        }
+//        // 业务逻辑
+//        lock.unlock();
+//
+//        return "1111";
+//    }
+
 
 }
