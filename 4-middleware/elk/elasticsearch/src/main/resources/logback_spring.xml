@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--scan: 为true时，配置文档如果发生改变，将会被重新加载，默认值true
+    scanPeriod: 设置监测配置文档是否有修改的时间间隔，如果没有给出单位，默认毫秒。 为true时生效，默认时间间隔1分钟
+    debug: 为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值false -->
+<configuration scan="true" scanPeriod="10 seconds" debug="false">
+
+    <contextName>logback</contextName>
+
+    <!-- 属性值会被插入到上下文中，在下面配置中可以使“${}”来使用 -->
+    <!-- 格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度 %msg：日志消息，%n是换行符 -->
+    <!-- <property name="LOG.PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%15.15thread] [%45.45file{15}\(%-4line\\) - %-45.45logger{15}] : %msg%n" /> -->
+    <property name="LOG.PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] %15.15thread -- %-45.45logger{15} : %msg%n"/>
+    <!-- 日志文件 -->
+    <property name="LOG.PATH" value="E:/ELK/logs/logstash.log"/>
+    <property name="LOG.FILE.DEBUG" value="${LOG.PATH}/debug.log"/>
+    <property name="LOG.FILE.INFO" value="${LOG.PATH}/info.log"/>
+    <property name="LOG.FILE.WARN" value="${LOG.PATH}/warn.log"/>
+    <property name="LOG.FILE.ERROR" value="${LOG.PATH}/error.log"/>
+    <property name="LOG.FILE.NAME" value="springboot.%d{yyyy-MM-dd}.%i.log"/>
+
+    <!-- 输出日志到控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>${LOG.PATTERN}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+
+    <!-- 输出日志到文件：DEBUG -->
+    <appender name="FILE-DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG.FILE.DEBUG}</file>
+        <append>true</append>
+        <encoder>
+            <Pattern>${LOG.PATTERN}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 日志记录级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!-- 时间滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!-- 保留天数 -->
+            <maxHistory>7</maxHistory>
+
+            <fileNamePattern>${LOG.FILE.DEBUG}/${LOG.FILE.NAME}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 输出日志到文件：INFO -->
+    <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG.FILE.INFO}</file>
+        <append>true</append>
+        <encoder>
+            <Pattern>${LOG.PATTERN}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 日志记录级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!-- 时间滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!-- 保留天数 -->
+            <maxHistory>7</maxHistory>
+
+            <fileNamePattern>${LOG.FILE.INFO}/${LOG.FILE.NAME}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 输出日志到文件：ERROR -->
+    <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG.FILE.ERROR}</file>
+        <append>true</append>
+        <encoder>
+            <Pattern>${LOG.PATTERN}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 日志记录级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!-- 时间滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!-- 保留天数 -->
+            <maxHistory>7</maxHistory>
+
+            <fileNamePattern>${LOG.FILE.ERROR}/${LOG.FILE.NAME}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 输出日志到文件：WARN -->
+    <appender name="FILE-WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG.FILE.WARN}</file>
+        <append>true</append>
+        <encoder>
+            <Pattern>${LOG.PATTERN}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 日志记录级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!-- 时间滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!-- 保留天数 -->
+            <maxHistory>7</maxHistory>
+
+            <fileNamePattern>${LOG.FILE.WARN}/${LOG.FILE.NAME}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 下面配置一些第三方包的日志过滤级别，用于避免刷屏-->
+    <Logger name="org.springframework" level="INFO"/>
+    <Logger name="org.springframework.beans.factory.aspectj" level="WARN"/>
+    <Logger name="org.springframework.transaction.interceptor" level="WARN"/>
+    <Logger name="org.springframework.beans.factory.support" level="WARN"/>
+    <Logger name="org.springframework.web.servlet" level="DEBUG"/>
+    <Logger name="org.springframework.transaction" level="WARN"/>
+    <Logger name="org.springframework.jdbc.datasource.DataSourceTransactionManager" level="WARN"/>
+    <Logger name="org.springframework.transaction.support.AbstractPlatformTransactionManager" level="WARN"/>
+    <Logger name="org.springframework.security" level="WARN"/>
+    <Logger name="org.apache.commons" level="WARN"/>
+    <Logger name="org.apache.kafka" level="WARN"/>
+    <Logger name="org.apache.http" level="ERROR"/>
+    <Logger name="org.logicalcobwebs" level="WARN"/>
+    <Logger name="httpclient" level="ERROR"/>
+    <Logger name="net.sf.ehcache" level="WARN"/>
+    <Logger name="org.apache.zookeeper" level="WARN"/>
+    <Logger name="org.I0Itec" level="WARN"/>
+    <Logger name="com.meetup.memcached" level="WARN"/>
+    <Logger name="org.mongodb.driver" level="INFO"/>
+    <Logger name="org.quartz.core" level="INFO"/>
+    <Logger name="io.netty" level="INFO"/>
+    <Logger name="net.rubyeye.xmemcached" level="WARN"/>
+    <Logger name="com.google" level="WARN"/>
+    <logger name="com.ibatis" level="DEBUG"/>
+    <logger name="com.ibatis.common.jdbc.SimpleDataSource" level="DEBUG"/>
+    <logger name="com.ibatis.common.jdbc.ScriptRunner" level="DEBUG"/>
+    <logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate" level="DEBUG"/>
+    <logger name="java.sql.Connection" level="DEBUG"/>
+    <logger name="java.sql.Statement" level="DEBUG"/>
+    <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+    <logger name="com.es.elsaticsearch" level="DEBUG"/>
+
+    <!-- 生产环境下，将此级别配置为适合的级别，以免日志文件太多或影响程序性能
+        level取值：TRACE < DEBUG < INFO < WARN < ERROR < FATAL 和 OFF -->
+    <root level="INFO">
+        <appender-ref ref="FILE-DEBUG"/>
+        <appender-ref ref="FILE-INFO"/>
+        <appender-ref ref="FILE-ERROR"/>
+        <appender-ref ref="FILE-WARN"/>
+
+        <!-- 生产环境将请console去掉 -->
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
